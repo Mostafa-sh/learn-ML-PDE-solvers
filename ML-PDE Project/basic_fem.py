@@ -1,9 +1,13 @@
 
+"""
+Developed by Mostafa Shojaei
+2023
+"""
 
 # ===========================================================
 # TO DO 0: 
 # Read and understand the following code 
-# and complete all TO DO boxes. 
+# and complete all TO DO boxes.
 # ===========================================================
 
 import numpy as np
