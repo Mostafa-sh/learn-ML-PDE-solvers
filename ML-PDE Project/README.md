@@ -3,7 +3,7 @@
 
 ### Part 1:
 1. Create a folder named `FEM505` in your Google Drive.
-2. Upload the `basic_fem.py` and `check_fem.ipynb` files to the `FEM505` folder.
+2. Upload the `utilities.py`, `basic_fem.py` and `check_fem.ipynb` files to the `FEM505` folder.
 3. Open the `check_fem.ipynb` file using Google Colab.
 4. In the Google Colab environment, click **Connect** in the top right corner to connect to a runtime (if it is not already connected).
 5. Execute the first cell to mount your Google Drive to Colab.
