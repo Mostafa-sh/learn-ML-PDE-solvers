@@ -13,12 +13,15 @@ import tensorflow as tf
 
 # def plot_mesh_as_image(img):
   
-def plot_u(U):
+def plot_u(U,img):
     m,n = U.shape
     fig = plt.figure(figsize=(4,4))
     ax = fig.add_subplot(1,1,1)
     xp,yp = np.meshgrid(np.linspace(0,1,n),np.linspace(0,1,m))
-    up = np.reshape(U,(m,n))    
+    up = np.reshape(U,(m,n))
+    #boundary
+    bc_ind = (img != -2)
+    up[bc_ind] = img[bc_ind]
     min_u = np.round(np.min(U),4)
     max_u = np.round(np.max(U),4)
     cp = ax.contourf(xp, yp, up)
@@ -34,16 +37,15 @@ def plot_results(img,U):
     """
     d0 = img == 0
     d1 = np.logical_and(img != -2, img !=0)  
-    m,n = img.shape
-    R = np.zeros((m,n))
-    G = np.zeros((m,n))
+    ny,nx = img.shape
+    R = np.zeros((ny,nx))
+    G = np.zeros((ny,nx))
     R[d0] = 1
     G[d1] = 1
-    img = np.zeros((m,n,3))
+    img = np.zeros((ny,nx,3))
     img[:,:,0] = R
     img[:,:,1] = G
     img = img[::-1,:,:]
-
     fig = plt.figure(figsize=(8,4))
     ax = fig.add_subplot(1,2,1)
     plt.imshow(img)
@@ -53,8 +55,8 @@ def plot_results(img,U):
     """
     (2) plot U
     """
-    xp,yp = np.meshgrid(np.linspace(0,1,n),np.linspace(0,1,m))
-    up = np.reshape(U,(m,n))    
+    xp,yp = np.meshgrid(np.linspace(0,1,nx),np.linspace(0,1,ny))
+    up = np.reshape(U,(ny,nx))    
     ax = fig.add_subplot(1,2,2)
     min_u = np.round(np.min(U),4)
     max_u = np.round(np.max(U),4)
@@ -84,12 +86,12 @@ def add_channel_to_one(img):
     return np.reshape(img,(img.shape[0],img.shape[0],1))
 
 
-def repeat_one_image(img,n=1):
+def repeat_one_image(img,k=1):
     """
-    repeat a matrix n times along axis 0
+    repeat a matrix k times along axis 0
     use for data augmentation
     """
-    return np.repeat([img],n,axis=0)
+    return np.repeat([img],k,axis=0)
 
 
 class LayerFillRandomNumber(tf.keras.layers.Layer):

@@ -7,7 +7,7 @@ Developed by Mostafa Shojaei
 # ===========================================================
 # TO DO 0: 
 # Read and understand the following code 
-# and complete all TO DO boxes.
+# and complete all TO DO boxes. 
 # ===========================================================
 
 import numpy as np
@@ -16,12 +16,13 @@ def get_coordinate_rec_mesh(mesh_size):
     """
     This function takes mesh_size = (nx, ny) and generates 
     the coordinates of nodes in a structured rectangular mesh
+    for a unit square domain
     """
     nx,ny = mesh_size
     x,y = np.meshgrid(np.linspace(0, 1, nx),np.linspace(0, 1, ny))
     # ===========================================================
     # TO DO 1: 
-    # Make a 2D numpy array of size (nx*ny x 2) containing 
+    # Make a 2D numpy array of size (2 x nx*ny) containing 
     # x and y coordinates. This can be done in one line.
     output = None
     # ===========================================================
@@ -86,21 +87,21 @@ def gauss_int_points(ng=2):
     in each direction and returns Gaussian weights and points
     """
     if ng == 1:
-        return [0],[0],[2]
-    else:
-        if ng == 2:
-            # ===========================================================
-            # TO DO 4: 
-            # Write Gaussian weights and points for ng = 2.
-            xg = []
-            wg = []
-            # ===========================================================
-        elif ng == 3:
-            xg =[-np.sqrt(3/5), 0, +np.sqrt(3/5)]
-            wg = [5/9, 8/9, 5/9]
-        x,y = np.meshgrid(xg,xg)
-        w = np.array([wg]).T*wg
-        return x.flatten(), y.flatten(), w.flatten()
+        xg = [0]
+        wg = [2]
+    elif ng == 2:
+        # ===========================================================
+        # TO DO 4: 
+        # Write Gaussian weights and points for ng = 2.
+        xg = []
+        wg = []
+        # ===========================================================
+    elif ng == 3:
+        xg =[-np.sqrt(3/5), 0, +np.sqrt(3/5)]
+        wg = [5/9, 8/9, 5/9]
+    x,y = np.meshgrid(xg,xg)
+    w = np.array([wg]).T*wg
+    return x.flatten(), y.flatten(), w.flatten()
 
 
 def get_gauss_int(fun,ng):
@@ -191,16 +192,14 @@ div(grad(u)) + 1 = 0
 --------------------------------------------
 """
 
-def get_K_and_F(m,n, ng=2):
+def get_K_and_F(nx,ny,ng=2):
     """
-    This function takes mesh size m x n 
+    This function takes mesh size nx x ny 
     and the number of Gauss points ng and 
     returns the global K and F for solving
     div(grad(u)) + 1 = 0 such that KU = F
     """
-    mesh_size  = (m,n)
-    total_dofs = mesh_size[0] * mesh_size[1]
-  
+    mesh_size  = (nx,ny)
     cord = get_coordinate_rec_mesh(mesh_size)
     ct = get_connection_rec_mesh(mesh_size)
     # ===========================================================
@@ -256,25 +255,23 @@ def get_K_and_F(m,n, ng=2):
     return K, F
 
 
-def solve(img):
+def solve(img,ng=2):
     """
     This function takes a matrix img containing 
     the boundary info and returns the solution of 
     div(grad(u)) + 1 = 0 for the given boundary 
     conditions.
     """
-    m,n = img_shape = img.shape
+    ny,nx = img.shape
 
-    K,F = get_K_and_F(m,n)
+    K,F = get_K_and_F(nx,ny,ng)
 
     #boundary
     dom_ind = (img == -2).flatten()
-    bc_ind1 = (img > 0).flatten()
-
-    Ud = img[img > 0]
-    
-    if bc_ind1.size > 0: 
-        F1 = K[:,bc_ind1] @ Ud
+    bc_ind1 = np.logical_and(np.logical_not(dom_ind),(img != 0).flatten())
+ 
+    U1 = img.flatten()[bc_ind1]
+    F1 = K[:,bc_ind1] @ U1
 
     # ===========================================================
     # TO DO 14: 
@@ -294,10 +291,8 @@ def solve(img):
     Fd = F[dom_ind] - F1[dom_ind]
 
     # solve
-    U = np.zeros(m*n)
-    if bc_ind1.size > 0:
-        U[bc_ind1] = img.flatten()[bc_ind1]
+    U = np.zeros(nx*ny)
+    U[bc_ind1] = U1
     U[dom_ind] = np.linalg.solve(Kd, Fd)
 
     return U
-    
